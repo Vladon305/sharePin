@@ -26,6 +26,26 @@ const PinDetail: React.FC<PropsType> = ({ user }) => {
     throw new Error('Unexpected undefined pin id')
   }
 
+  const fetchPinDetail = () => {
+    let query = pinDetailQuery(pinId)
+
+    if (query) {
+      client.fetch(query)
+        .then((data) => {
+          setPinDetail(data[0])
+
+          if (data[0]) {
+            query = pinDetailMorePinQuery(data[0])
+
+            client.fetch(query)
+              .then((res) => {
+                setPins(res)
+              })
+          }
+        })
+    }
+  }
+
   const addComment = () => {
     if (comment) {
       setAddingComment(true)
@@ -45,26 +65,6 @@ const PinDetail: React.FC<PropsType> = ({ user }) => {
           fetchPinDetail(),
             setComment('')
           setAddingComment(false)
-        })
-    }
-  }
-
-  const fetchPinDetail = () => {
-    let query = pinDetailQuery(pinId)
-
-    if (query) {
-      client.fetch(query)
-        .then((data) => {
-          setPinDetail(data[0])
-
-          if (data[0]) {
-            query = pinDetailMorePinQuery(data[0])
-
-            client.fetch(query)
-              .then((res) => {
-                setPins(res)
-              })
-          }
         })
     }
   }
