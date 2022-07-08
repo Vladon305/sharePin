@@ -20,7 +20,7 @@ const Pin: React.FC<PropsType> = ({ pin: { postedBy, image, _id, destination, sa
   const navigate = useNavigate()
   const user = fetchUser()
 
-  const alreadySaved = !!(save?.filter((item) => item.postedBy?._id === user.sub))?.length
+  const alreadySaved = !!(save?.filter((item) => item?.postedBy?._id === user?.sub))?.length
 
   const savePin = (id: string) => {
     if (!alreadySaved) {
@@ -30,10 +30,10 @@ const Pin: React.FC<PropsType> = ({ pin: { postedBy, image, _id, destination, sa
         .setIfMissing({ save: [] })
         .insert('after', 'save[-1]', [{
           _key: uuidv4(),
-          userId: user.sub,
+          userId: user?.sub,
           postedBy: {
             _type: 'postedBy',
-            _ref: user.sub
+            _ref: user?.sub
           }
         }])
         .commit()
@@ -109,7 +109,7 @@ const Pin: React.FC<PropsType> = ({ pin: { postedBy, image, _id, destination, sa
                   {destination.length > 15 ? `${destination.slice(0, 10)}...` : destination}
                 </a>
               )}
-              {postedBy?._id === user.sub && (
+              {postedBy?._id === user?.sub && (
                 <button
                   type='button'
                   onClick={(e) => {
