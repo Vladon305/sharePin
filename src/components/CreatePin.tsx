@@ -83,9 +83,9 @@ const CreatePin: React.FC<PropsType> = ({ user }) => {
   return (
     <div className='flex flex-col justify-center items-center mt-5 lg:h-4/5'>
       {fields && (
-        <p className='text-red-500 mb-5text-xl transition-all duration-150 ease-in'>Please fill in all the fields.</p>
+        <p className='text-red-500 mb-5 text-xl transition-all duration-150 ease-in'>Please fill in all the fields.</p>
       )}
-      <div className='flex lg-flex-col justify-center items-center bg-white lg:p-5 p=3 lg:w-4/5 w-full'>
+      <div className='flex lg:flex-row flex-col justify-center items-center bg-white lg:p-5 p=3 lg:w-4/5 w-full'>
         <div className='bg-secondaryColor p-3 flex flex-0.7 w-full'>
           <div className='flex justify-center items-center flex-col border-2 border-dotted border-gray-300 p-3 w-full h-420'>
             {loading && <Spinner />}
@@ -163,7 +163,7 @@ const CreatePin: React.FC<PropsType> = ({ user }) => {
                 onChange={(e) => setCategory(e.target.value)}
                 className='outline-none w-4/5 border-b-2 border-gray-200 text-base p-2 rounded-md cursor-pointer'
               >
-                <option value="other" className='bg-white'>Select category</option>
+                <option value="other" className='sm:text-bg bg-white'>Select category</option>
                 {categories.map((category) => (
                   <option value={category.name} className='text-base border-0 outline-none capitalize bg-white text-black'>
                     {category.name}
