@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 // import { AiOutlineLogout } from 'react-icons/ai'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 // import { googleLogout } from '@react-oauth/google'
 
 import { userCreatedPinsQuery, userQuery, userSavedPinsQuery } from '../utils/data'
@@ -8,7 +8,6 @@ import { client } from '../client'
 import MasonryLayout from './MasonryLayout'
 import Spinner from './Spinner'
 import { PinType, User } from '../types/types'
-import { fetchUser } from '../utils/fetchUser'
 
 type PropsType = {
 }
@@ -25,7 +24,6 @@ const UserProfile: React.FC<PropsType> = () => {
   const [text, setText] = useState<string | null>('Created')
   const [activeBtn, setActiveBtn] = useState('created')
 
-  const navigate = useNavigate()
   const { userId } = useParams()
 
   if (!userId) {

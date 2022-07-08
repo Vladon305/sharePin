@@ -12,6 +12,7 @@ const App: React.FC = () => {
     const user = fetchUser()
 
     if (!user) navigate('/login')
+    // eslint-disable-next-line
   }, [])
 
   return (
