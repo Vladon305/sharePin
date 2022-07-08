@@ -62,8 +62,8 @@ const PinDetail: React.FC<PropsType> = ({ user }) => {
         }])
         .commit()
         .then(() => {
-          fetchPinDetail(),
-            setComment('')
+          fetchPinDetail()
+          setComment('')
           setAddingComment(false)
         })
     }
@@ -71,6 +71,7 @@ const PinDetail: React.FC<PropsType> = ({ user }) => {
 
   useEffect(() => {
     fetchPinDetail()
+    // eslint-disable-next-line
   }, [pinId])
 
   if (!pinDetail) return <Spinner message='Loading pin ...' />
