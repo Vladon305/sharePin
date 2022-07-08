@@ -1,6 +1,6 @@
 export type User = {
   _createdAt: string
-  _id: number
+  _id: number | string
   _rev: string
   _type: string
   _updatedAt: string
@@ -13,15 +13,21 @@ export type Image = {
   asset: {
     _ref: string
     _type: string
+    url?: string
   }
 }
 
-export type PostedBy = {
-  _id: string
-  _ref: string
-  _type: string
+export type CategoryType = {
+  name: string
   image: string
-  userName: string
+}
+
+export type PostedBy = {
+  _id?: string
+  _ref: string | number | undefined | null
+  _type: string
+  image?: string
+  userName?: string
 }
 
 export type Save = {
@@ -33,20 +39,26 @@ export type Save = {
   _rev: string
   _updatedAt: string
 }
+export type Comment = {
+  postedBy: PostedBy,
+  comment: string
+}
 
 export type PinType = {
-  _createdAt: string
+  _createdAt?: string
   _id: string
-  _rev: string
-  _type: string
-  _updatedAt: string
-  about: string
-  destination: string
-  category: string
+  _rev?: string
+  _type?: string
+  _updatedAt?: string
+  title?: string
+  about?: string
+  destination?: string
+  category?: string
   image: Image
-  postedBy: PostedBy
-  save: Save[]
-  userId: number
+  postedBy?: PostedBy
+  comments: Comment[]
+  save?: Save[]
+  userId?: number | string | null | undefined
 }
 
 export type DecodedResponseData = {

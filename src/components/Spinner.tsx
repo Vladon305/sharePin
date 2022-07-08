@@ -2,7 +2,7 @@ import React from 'react'
 import { ThreeCircles } from 'react-loader-spinner'
 
 type PropsType = {
-  message: string
+  message?: string
 }
 
 const Spinner: React.FC<PropsType> = ({ message }) => {

@@ -31,8 +31,10 @@ const Feed: React.FC = () => {
     // eslint-disable-next-line
   }, [categoryId])
 
-
   if (loading) return <Spinner message='We are adding new ideas to your feed!' />
+
+  if (!pins?.length) return <h2>No pins in category</h2>
+
   return (
     <div>{pins && <MasonryLayout pins={pins} />}</div>
   )

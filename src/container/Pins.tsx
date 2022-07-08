@@ -5,7 +5,7 @@ import { Navbar, Feed, PinDetail, CreatePin, Search } from '../components'
 import { User } from '../types/types'
 
 type PropsType = {
-  user: User | null
+  user: User
 }
 
 const Pins: React.FC<PropsType> = ({ user }) => {

@@ -8,13 +8,13 @@ import Pins from './Pins'
 import { userQuery } from '../utils/data'
 import { client } from '../client'
 import logo from '../assets/logo.png'
-import { DecodedResponseData, User } from '../types/types'
+import { User } from '../types/types'
 import { fetchUser } from '../utils/fetchUser'
 
 const Home: React.FC = () => {
 
   const [toggleSidebar, setToggleSidebar] = useState(false)
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState(null as unknown as User)
   const scrollRef = useRef<HTMLInputElement>(null)
 
   const userInfo = fetchUser()
