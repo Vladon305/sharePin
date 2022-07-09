@@ -1,37 +1,27 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { HiMenu } from 'react-icons/hi'
 import { AiFillCloseCircle } from 'react-icons/ai'
 import { Link, Routes, Route } from 'react-router-dom'
 
 import { Sidebar, UserProfile } from '../components'
 import Pins from './Pins'
-import { userQuery } from '../utils/data'
-import { client } from '../client'
 import logo from '../assets/logo.png'
-import { User } from '../types/types'
 import { fetchUser } from '../utils/fetchUser'
+import { getUser } from '../store/user/userSlice'
+import { useTypedDispatch } from '../hooks/useTypedDispatch'
+import { useTypedSelector } from '../hooks/useTypedSelector'
 
 const Home: React.FC = () => {
 
   const [toggleSidebar, setToggleSidebar] = useState(false)
-  const [user, setUser] = useState(null as unknown as User)
-  const scrollRef = useRef<HTMLInputElement>(null)
+  const { user } = useTypedSelector(state => state.user)
+  const dispatch = useTypedDispatch()
 
   const userInfo = fetchUser()
 
   useEffect(() => {
-    const query = userQuery(userInfo?.sub)
-
-    client.fetch(query).then((data) => {
-      setUser(data[0])
-    })
-    // eslint-disable-next-line
-  }, [])
-
-  useEffect(() => {
-    (scrollRef.current as HTMLInputElement).scrollTo(0, 0)
-    // eslint-disable-next-line
-  }, [])
+    dispatch(getUser(userInfo?.sub))
+  }, [userInfo?.sub, dispatch])
 
   return (
     <div className='flex bg-gray-50 md:flex-row flex-col h-screen transaction-height duration-75 ease-out'>
@@ -57,7 +47,7 @@ const Home: React.FC = () => {
           </div>
         )}
       </div>
-      <div className='pb-2 flex-1 h-screen overflow-y-scroll' ref={scrollRef}>
+      <div className='pb-2 flex-1 h-screen'>
         <Routes>
           <Route path='/user-profile/:userId' element={<UserProfile />} />
           <Route path='/*' element={<Pins user={user && user} />} />

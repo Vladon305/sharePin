@@ -1,35 +1,28 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-
-import { client } from '../client'
-import { PinType } from '../types/types'
-import { feedQuery, searchQuery } from '../utils/data'
 import MasonryLayout from './MasonryLayout'
 import Spinner from './Spinner'
+import { useTypedSelector } from '../hooks/useTypedSelector'
+import { useTypedDispatch } from '../hooks/useTypedDispatch'
+import { getPins } from '../store/pins/pinsSlice'
 
 const Feed: React.FC = () => {
   const [loading, setLoading] = useState(false)
-  const [pins, setPins] = useState<PinType[] | null>(null)
   const { categoryId } = useParams()
+
+  const { pins } = useTypedSelector(state => state.pins)
+  const dispatch = useTypedDispatch()
 
   useEffect(() => {
     setLoading(true)
-
     if (categoryId) {
-      const query = searchQuery(categoryId)
-
-      client.fetch(query).then((data) => {
-        setPins(data)
-        setLoading(false)
-      })
+      dispatch(getPins(categoryId))
+      setLoading(false)
     } else {
-      client.fetch(feedQuery).then((data) => {
-        setPins(data)
-        setLoading(false)
-      })
+      dispatch(getPins())
+      setLoading(false)
     }
-    // eslint-disable-next-line
-  }, [categoryId])
+  }, [categoryId, dispatch])
 
   if (loading) return <Spinner message='We are adding new ideas to your feed!' />
 

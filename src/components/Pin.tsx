@@ -6,8 +6,9 @@ import { MdDownloadForOffline } from 'react-icons/md'
 import { AiTwotoneDelete } from 'react-icons/ai'
 import { BsFillArrowUpRightCircleFill } from 'react-icons/bs'
 
-import { client, urlFor } from '../client'
+import { urlFor } from '../client'
 import { fetchUser } from '../utils/fetchUser'
+import { deleteAPI, patchAPI } from '../API/API'
 
 type PropsType = {
   pin: PinType
@@ -26,26 +27,25 @@ const Pin: React.FC<PropsType> = ({ pin: { postedBy, image, _id, destination, sa
     if (!alreadySaved) {
       setSavingPost(true)
 
-      client.patch(id)
-        .setIfMissing({ save: [] })
-        .insert('after', 'save[-1]', [{
+      patchAPI(id, { save: [] }, {
+        at: 'after', selector: 'save[-1]',
+        items: [{
           _key: uuidv4(),
           userId: user?.sub,
           postedBy: {
             _type: 'postedBy',
             _ref: user?.sub
           }
-        }])
-        .commit()
-        .then(() => {
-          window.location.reload()
-          setSavingPost(false)
-        })
+        }]
+      }).then(() => {
+        window.location.reload()
+        setSavingPost(false)
+      })
     }
   }
 
   const deletePin = (id: string) => {
-    client.delete(id)
+    deleteAPI(id)
       .then(() => {
         window.location.reload()
       })

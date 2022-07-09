@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { Comment, PinType, User } from '../types/types'
+import { Comment, User } from '../types/types'
 import { MdDownloadForOffline } from 'react-icons/md'
 import { Link, useParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
-import { client, urlFor } from '../client'
+import { urlFor } from '../client'
 import MasonryLayout from './MasonryLayout'
 import { pinDetailQuery, pinDetailMorePinQuery } from '../utils/data'
 import Spinner from './Spinner'
+import { patchAPI } from '../API/API'
+import { useTypedSelector } from '../hooks/useTypedSelector'
+import { useTypedDispatch } from '../hooks/useTypedDispatch'
+import { getPinDetail, reGetPins } from '../store/pins/pinsSlice'
 
 type PropsType = {
   user: User
@@ -15,11 +19,13 @@ type PropsType = {
 
 const PinDetail: React.FC<PropsType> = ({ user }) => {
 
-  const [pins, setPins] = useState(null as unknown as PinType[])
-  const [pinDetail, setPinDetail] = useState<PinType | null>(null)
+  // const [pinDetail, setPinDetail] = useState<PinType | null>(null)
   const [comment, setComment] = useState<Comment["comment"]>('')
   const [addingComment, setAddingComment] = useState(false)
 
+  const { pins } = useTypedSelector(state => state.pins)
+  const { pinDetail } = useTypedSelector(state => state.pins)
+  const dispatch = useTypedDispatch()
   const { pinId } = useParams()
 
   if (!pinId) {
@@ -28,21 +34,12 @@ const PinDetail: React.FC<PropsType> = ({ user }) => {
 
   const fetchPinDetail = () => {
     let query = pinDetailQuery(pinId)
-
     if (query) {
-      client.fetch(query)
-        .then((data) => {
-          setPinDetail(data[0])
-
-          if (data[0]) {
-            query = pinDetailMorePinQuery(data[0])
-
-            client.fetch(query)
-              .then((res) => {
-                setPins(res)
-              })
-          }
-        })
+      dispatch(getPinDetail(query))
+      if (pinDetail) {
+        query = pinDetailMorePinQuery(pinDetail)
+        dispatch(reGetPins(query))
+      }
     }
   }
 
@@ -50,22 +47,20 @@ const PinDetail: React.FC<PropsType> = ({ user }) => {
     if (comment) {
       setAddingComment(true)
 
-      client.patch(pinId)
-        .setIfMissing({ comments: [] })
-        .insert('after', 'comments[-1]', [{
+      patchAPI(pinId, { comments: [] }, {
+        at: 'after', selector: 'comments[-1]', items: [{
           comment,
           _key: uuidv4(),
           postedBy: {
             _type: 'postedBy',
             _ref: user._id
           }
-        }])
-        .commit()
-        .then(() => {
-          fetchPinDetail()
-          setComment('')
-          setAddingComment(false)
-        })
+        }]
+      }).then(() => {
+        fetchPinDetail()
+        setComment('')
+        setAddingComment(false)
+      })
     }
   }
 

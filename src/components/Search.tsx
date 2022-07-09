@@ -1,10 +1,10 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 
 import MasonryLayout from './MasonryLayout'
-import { client } from '../client'
 import { feedQuery, searchQuery } from '../utils/data'
 import Spinner from './Spinner'
 import { PinType } from '../types/types'
+import { fetchingAPI } from '../API/API'
 
 type PropsType = {
   searchTerm: string
@@ -20,12 +20,12 @@ const Search: React.FC<PropsType> = ({ searchTerm }) => {
       setLoading(true)
       const query = searchQuery(searchTerm.toLowerCase())
 
-      client.fetch(query).then((data) => {
+      fetchingAPI(query).then((data) => {
         setPins(data)
         setLoading(false)
       })
     } else {
-      client.fetch(feedQuery)
+      fetchingAPI(feedQuery)
         .then((data) => {
           setPins(data)
           setLoading(false)

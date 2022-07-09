@@ -6,9 +6,9 @@ import jwt_decode from 'jwt-decode'
 import shareVideo from '../assets/share.mp4'
 import logo from '../assets/logo.png'
 
-import { client } from '../client'
 import { DecodedResponseData } from '../types/types'
 import { IdentifiedSanityDocumentStub } from '@sanity/client'
+import { createIfNotExistsAPI } from '../API/API'
 
 
 const Login: React.FC = () => {
@@ -28,7 +28,7 @@ const Login: React.FC = () => {
       image: picture
     }
 
-    client.createIfNotExists(doc).then(() => {
+    createIfNotExistsAPI(doc).then(() => {
       navigate('/', { replace: true })
     })
   }

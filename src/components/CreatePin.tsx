@@ -3,11 +3,11 @@ import { AiOutlineCloudUpload } from 'react-icons/ai'
 import { MdDelete } from 'react-icons/md'
 import { useNavigate } from 'react-router-dom'
 
-import { client } from '../client'
 import Spinner from './Spinner'
 import { categories } from '../utils/data'
 import { User, PinType, CategoryType } from '../types/types'
 import { SanityImageAssetDocument } from '@sanity/client'
+import { assetAPI, createAPI } from '../API/API'
 
 type PropsType = {
   user: User
@@ -30,16 +30,15 @@ const CreatePin: React.FC<PropsType> = ({ user }) => {
     if (!e.target.files) return
     const { type, name } = e.target.files[0]
 
-    if (type === 'image/png' || type === 'image/svg' || type === 'image/jpeg' || type === 'image/gif' || type === 'image/tiff') {
+    if (type === 'image/png' || type === 'image/svg' || type === 'image/jpeg'
+      || type === 'image/gif' || type === 'image/tiff') {
       setWrongImageType(false)
       setLoading(true)
 
-      client.assets
-        .upload('image', e.target.files[0], { contentType: type, filename: name })
-        .then((document) => {
-          setImageAsset(document)
-          setLoading(false)
-        })
+      assetAPI('image', e.target.files[0], { contentType: type, filename: name }).then((document) => {
+        setImageAsset(document)
+        setLoading(false)
+      })
         .catch((error) => {
           console.log('Image upload error', error)
         })
@@ -71,8 +70,7 @@ const CreatePin: React.FC<PropsType> = ({ user }) => {
         category
       }
       //@ts-ignore
-      client.create(doc)
-        .then(() => navigate('/'))
+      createAPI(doc).then(() => navigate('/'))
     } else {
       setFields(true)
 

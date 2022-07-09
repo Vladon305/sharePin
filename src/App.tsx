@@ -20,7 +20,6 @@ const App: React.FC = () => {
       <Route path='login' element={<Login />} />
       <Route path='/*' element={<Home />} />
     </Routes>
-
   )
 }
 

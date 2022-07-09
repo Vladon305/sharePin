@@ -3,26 +3,28 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 // import { googleLogout } from '@react-oauth/google'
 
-import { userCreatedPinsQuery, userQuery, userSavedPinsQuery } from '../utils/data'
-import { client } from '../client'
+import { userCreatedPinsQuery, userSavedPinsQuery } from '../utils/data'
 import MasonryLayout from './MasonryLayout'
 import Spinner from './Spinner'
-import { PinType, User } from '../types/types'
-
-type PropsType = {
-}
+import { PinType } from '../types/types'
+import { fetchingAPI } from '../API/API'
+import { useTypedSelector } from '../hooks/useTypedSelector'
+import { useTypedDispatch } from '../hooks/useTypedDispatch'
+import { getUser } from '../store/user/userSlice'
 
 const activeBtnStyles = 'bg-red-500 text-white font-bold p-2 rounded-full w-20 outline-none'
 const notActiveBtnStyles = 'bg-primary mr-4 text-black font-bold p-2 rounded-full w-20 outline-none'
 
 const randomImage = "https://source.unsplash.com/1600x900/?nature,photography,technology"
 
-const UserProfile: React.FC<PropsType> = () => {
+const UserProfile: React.FC = () => {
 
-  const [user, setUser] = useState<User | null>(null)
   const [pins, setPins] = useState(null as unknown as PinType[])
   const [text, setText] = useState<string | null>('Created')
   const [activeBtn, setActiveBtn] = useState('created')
+
+  const { user } = useTypedSelector(state => state.user)
+  const dispatch = useTypedDispatch()
 
   const { userId } = useParams()
 
@@ -31,26 +33,21 @@ const UserProfile: React.FC<PropsType> = () => {
   }
 
   useEffect(() => {
-    const query = userQuery(userId)
-
-    client.fetch(query)
-      .then((data) => {
-        setUser(data[0])
-      })
-  }, [userId])
+    dispatch(getUser(userId))
+  }, [userId, dispatch])
 
   useEffect(() => {
     if (text === 'Created') {
       const createdPinsQuery = userCreatedPinsQuery(userId)
 
-      client.fetch(createdPinsQuery)
+      fetchingAPI(createdPinsQuery)
         .then((data) => {
           setPins(data)
         })
     } else {
       const savedPinsQuery = userSavedPinsQuery(userId)
 
-      client.fetch(savedPinsQuery)
+      fetchingAPI(savedPinsQuery)
         .then((data) => {
           setPins(data)
         })
