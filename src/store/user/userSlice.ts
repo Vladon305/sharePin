@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { User } from '../../types/types'
 import { userQuery } from '../../utils/data'
-import { fetchingAPI } from '../../API/API';
+import { fetchingAPI } from '../../API/API'
 
 const initialState = {
   user: {} as unknown as User

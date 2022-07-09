@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit'
 import { pinsReducer } from './pins/pinsSlice'
 import { userReducer } from './user/userSlice'
 
