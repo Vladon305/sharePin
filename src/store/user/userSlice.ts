@@ -4,7 +4,8 @@ import { userQuery } from '../../utils/data'
 import { fetchingAPI } from '../../API/API'
 
 const initialState = {
-  user: {} as unknown as User
+  user: {} as unknown as User,
+  userProfile: {} as unknown as User
 }
 
 export const getUser = createAsyncThunk(
@@ -16,7 +17,21 @@ export const getUser = createAsyncThunk(
         return data[0]
       })
     } catch (e) {
-      return rejectWithValue('Ошибка запроса')
+      return rejectWithValue('request problem')
+    }
+  }
+)
+
+export const getUserProfile = createAsyncThunk(
+  'user/getUserProfile',
+  async (id: string | number, { rejectWithValue }) => {
+    try {
+      const query = userQuery(id)
+      return await fetchingAPI(query).then((data) => {
+        return data[0]
+      })
+    } catch (e) {
+      return rejectWithValue('request problem')
     }
   }
 )
@@ -32,6 +47,9 @@ export const userSlice = createSlice({
   extraReducers: {
     [getUser.fulfilled.type]: (state, action: PayloadAction<User>) => {
       state.user = action.payload
+    },
+    [getUserProfile.fulfilled.type]: (state, action: PayloadAction<User>) => {
+      state.userProfile = action.payload
     }
   }
 })

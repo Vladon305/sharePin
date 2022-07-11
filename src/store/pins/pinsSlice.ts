@@ -1,59 +1,52 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { fetchingAPI } from '../../API/API'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { PinType } from '../../types/types'
-import { feedQuery, searchQuery } from '../../utils/data'
+import { getPins, getSearchPins, getCreatedPins, getSavedPins, reGetPins } from './reducers'
 
 const initialState = {
   pins: [] as PinType[],
-  pinDetail: {} as PinType
+  searchPins: [] as PinType[],
+  createdPins: [] as PinType[],
+  savedPins: [] as PinType[],
+  loading: false
 }
-
-export const getPins = createAsyncThunk(
-  'pins/getPins',
-  async (searchTerm: string | undefined | null, { rejectWithValue }) => {
-    if (searchTerm) {
-      const query = searchQuery(searchTerm)
-      return await fetchingAPI(query).then((data) => {
-        return data
-      })
-    } else {
-      return await fetchingAPI(feedQuery).then((data) => {
-        return data
-      })
-    }
-  }
-)
-
-export const reGetPins = createAsyncThunk(
-  'pins/getPins',
-  async (query: string, { rejectWithValue }) => {
-    return await fetchingAPI(query).then((data) => {
-      return data
-    })
-  }
-)
-
-export const getPinDetail = createAsyncThunk(
-  'pins/getPinDetail',
-  async (query: string, { rejectWithValue }) => {
-    return await fetchingAPI(query).then((data) => {
-      return data[0]
-    })
-  }
-)
 
 export const pinsSlice = createSlice({
   name: 'pins',
   initialState,
-  reducers: {
-
-  },
+  reducers: {},
   extraReducers: {
+    [getPins.pending.type]: (state) => {
+      state.loading = true
+    },
     [getPins.fulfilled.type]: (state, action: PayloadAction<PinType[]>) => {
       state.pins = action.payload
+      state.loading = false
     },
-    [getPinDetail.fulfilled.type]: (state, action: PayloadAction<PinType>) => {
-      state.pinDetail = action.payload
+    [reGetPins.pending.type]: (state) => {
+      state.loading = true
+    },
+    [reGetPins.fulfilled.type]: (state, action: PayloadAction<PinType[]>) => {
+      state.pins = action.payload
+      state.loading = false
+    },
+    [getSearchPins.pending.type]: (state) => {
+      state.loading = true
+    },
+    [getSearchPins.fulfilled.type]: (state, action: PayloadAction<PinType[]>) => {
+      state.searchPins = action.payload
+      state.loading = false
+    },
+    [getCreatedPins.pending.type]: (state) => {
+      state.loading = true
+    },
+    [getCreatedPins.fulfilled.type]: (state, action: PayloadAction<PinType[]>) => {
+      state.createdPins = action.payload
+    },
+    [getSavedPins.pending.type]: (state) => {
+      state.loading = true
+    },
+    [getSavedPins.fulfilled.type]: (state, action: PayloadAction<PinType[]>) => {
+      state.savedPins = action.payload
     }
   }
 })

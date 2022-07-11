@@ -3,14 +3,12 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 // import { googleLogout } from '@react-oauth/google'
 
-import { userCreatedPinsQuery, userSavedPinsQuery } from '../utils/data'
 import MasonryLayout from './MasonryLayout'
 import Spinner from './Spinner'
-import { PinType } from '../types/types'
-import { fetchingAPI } from '../API/API'
 import { useTypedSelector } from '../hooks/useTypedSelector'
 import { useTypedDispatch } from '../hooks/useTypedDispatch'
-import { getUser } from '../store/user/userSlice'
+import { getUserProfile } from '../store/user/userSlice'
+import { getCreatedPins, getSavedPins } from '../store/pins/reducers'
 
 const activeBtnStyles = 'bg-red-500 text-white font-bold p-2 rounded-full w-20 outline-none'
 const notActiveBtnStyles = 'bg-primary mr-4 text-black font-bold p-2 rounded-full w-20 outline-none'
@@ -18,12 +16,14 @@ const notActiveBtnStyles = 'bg-primary mr-4 text-black font-bold p-2 rounded-ful
 const randomImage = "https://source.unsplash.com/1600x900/?nature,photography,technology"
 
 const UserProfile: React.FC = () => {
-
-  const [pins, setPins] = useState(null as unknown as PinType[])
   const [text, setText] = useState<string | null>('Created')
   const [activeBtn, setActiveBtn] = useState('created')
 
-  const { user } = useTypedSelector(state => state.user)
+  const { createdPins } = useTypedSelector(state => state.pins)
+  const { savedPins } = useTypedSelector(state => state.pins)
+  const { userProfile } = useTypedSelector(state => state.user)
+
+  const [pins, setPins] = useState(createdPins)
   const dispatch = useTypedDispatch()
 
   const { userId } = useParams()
@@ -33,28 +33,20 @@ const UserProfile: React.FC = () => {
   }
 
   useEffect(() => {
-    dispatch(getUser(userId))
+    dispatch(getUserProfile(userId))
   }, [userId, dispatch])
 
   useEffect(() => {
     if (text === 'Created') {
-      const createdPinsQuery = userCreatedPinsQuery(userId)
-
-      fetchingAPI(createdPinsQuery)
-        .then((data) => {
-          setPins(data)
-        })
+      dispatch(getCreatedPins(userId))
+      setPins(createdPins)
     } else {
-      const savedPinsQuery = userSavedPinsQuery(userId)
-
-      fetchingAPI(savedPinsQuery)
-        .then((data) => {
-          setPins(data)
-        })
+      dispatch(getSavedPins(userId))
+      setPins(savedPins)
     }
-  }, [text, userId])
+  }, [text, createdPins, savedPins, userId, dispatch])
 
-  if (!user) return <Spinner message="Loading profile" />
+  if (!userProfile) return <Spinner message="Loading profile" />
 
   return (
     <div className="relative pb-2 h-full justify-center items-center">
@@ -68,12 +60,12 @@ const UserProfile: React.FC = () => {
             />
             <img
               className="rounded-full w-20 h-20 -mt-10 shadow-xl object-cover"
-              src={user.image}
+              src={userProfile.image}
               alt="user-pic"
             />
           </div>
           <h1 className="font-bold text-3xl text-center mt-3">
-            {user.userName}
+            {userProfile.userName}
           </h1>
           {/* <div className="absolute top-0 z-1 right-0 p-2">
             {userId === user._id && (

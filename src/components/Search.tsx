@@ -1,10 +1,11 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect } from 'react'
 
 import MasonryLayout from './MasonryLayout'
-import { feedQuery, searchQuery } from '../utils/data'
+import { feedQuery } from '../utils/data'
 import Spinner from './Spinner'
-import { PinType } from '../types/types'
-import { fetchingAPI } from '../API/API'
+import { useTypedSelector } from '../hooks/useTypedSelector'
+import { useTypedDispatch } from '../hooks/useTypedDispatch'
+import { getSearchPins } from "../store/pins/reducers"
 
 type PropsType = {
   searchTerm: string
@@ -12,32 +13,23 @@ type PropsType = {
 }
 
 const Search: React.FC<PropsType> = ({ searchTerm }) => {
-  const [pins, setPins] = useState(null as unknown as PinType[])
-  const [loading, setLoading] = useState(false)
+  const { searchPins } = useTypedSelector(state => state.pins)
+  const { loading } = useTypedSelector(state => state.pins)
+  const dispatch = useTypedDispatch()
 
   useEffect(() => {
-    if (searchTerm !== '') {
-      setLoading(true)
-      const query = searchQuery(searchTerm.toLowerCase())
-
-      fetchingAPI(query).then((data) => {
-        setPins(data)
-        setLoading(false)
-      })
+    if (searchTerm !== '' && searchTerm !== ' ') {
+      dispatch(getSearchPins(searchTerm))
     } else {
-      fetchingAPI(feedQuery)
-        .then((data) => {
-          setPins(data)
-          setLoading(false)
-        })
+      dispatch(getSearchPins(feedQuery))
     }
-  }, [searchTerm])
+  }, [searchTerm, dispatch])
 
   return (
     <div>
       {loading && <Spinner message="Searching pins" />}
-      {pins?.length !== 0 && <MasonryLayout pins={pins} />}
-      {pins?.length === 0 && searchTerm !== '' && !loading && (
+      {searchPins?.length !== 0 && <MasonryLayout pins={searchPins && searchPins} />}
+      {searchPins?.length === 0 && searchTerm !== '' && !loading && (
         <div className="mt-10 text-center text-xl ">No Pins Found!</div>
       )}
     </div>

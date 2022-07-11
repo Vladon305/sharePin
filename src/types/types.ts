@@ -31,13 +31,9 @@ export type PostedBy = {
 }
 
 export type Save = {
-  _id: string
-  _type: string
-  _createdAt: string | undefined
+  _key: string
   postedBy: PostedBy
   userId: string
-  _rev: string
-  _updatedAt: string
 }
 export type Comment = {
   postedBy: PostedBy,

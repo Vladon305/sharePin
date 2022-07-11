@@ -6,7 +6,7 @@ import { MdDownloadForOffline } from 'react-icons/md'
 import { AiTwotoneDelete } from 'react-icons/ai'
 import { BsFillArrowUpRightCircleFill } from 'react-icons/bs'
 
-import { urlFor } from '../client'
+import { client, urlFor } from '../client'
 import { fetchUser } from '../utils/fetchUser'
 import { deleteAPI, patchAPI } from '../API/API'
 
@@ -44,6 +44,17 @@ const Pin: React.FC<PropsType> = ({ pin: { postedBy, image, _id, destination, sa
     }
   }
 
+  const unSavePin = (id: string) => {
+    if (alreadySaved) {
+      setSavingPost(true)
+
+      client.patch(id).unset(['save[0]']).commit().then(() => {
+        window.location.reload()
+        setSavingPost(false)
+      })
+    }
+  }
+
   const deletePin = (id: string) => {
     deleteAPI(id)
       .then(() => {
@@ -61,7 +72,7 @@ const Pin: React.FC<PropsType> = ({ pin: { postedBy, image, _id, destination, sa
       >
         <img src={urlFor(image).width(250).url()} alt="user-post" className='rounded-lg w-full' />
         {postHovered && (
-          <div className='absolute top-0 w-full h-full flex flex-col justify-between p-1 pr-2 pt-2 pb-2 z-50'
+          <div className='absolute top-0 w-full h-full flex flex-col justify-between p-1 pr-2 pt-2 pb-2 z-15'
             style={{ height: '100%' }}
           >
             <div className='flex items-center justify-between'>
@@ -80,6 +91,7 @@ const Pin: React.FC<PropsType> = ({ pin: { postedBy, image, _id, destination, sa
                   type='button'
                   onClick={(e) => {
                     e.stopPropagation()
+                    unSavePin(_id)
                   }}
                   className='bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none'>
                   {save?.length}  Saved

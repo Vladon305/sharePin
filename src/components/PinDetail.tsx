@@ -1,38 +1,34 @@
-import React, { useState, useEffect } from 'react'
-import { Comment, User } from '../types/types'
+import React, { useCallback, useEffect } from 'react'
+import { User } from '../types/types'
 import { MdDownloadForOffline } from 'react-icons/md'
 import { Link, useParams } from 'react-router-dom'
-import { v4 as uuidv4 } from 'uuid'
 
 import { urlFor } from '../client'
 import MasonryLayout from './MasonryLayout'
 import { pinDetailQuery, pinDetailMorePinQuery } from '../utils/data'
 import Spinner from './Spinner'
-import { patchAPI } from '../API/API'
 import { useTypedSelector } from '../hooks/useTypedSelector'
 import { useTypedDispatch } from '../hooks/useTypedDispatch'
-import { getPinDetail, reGetPins } from '../store/pins/pinsSlice'
+import { reGetPins } from "../store/pins/reducers"
+import { addNewComment, getPinDetail } from "../store/pinDetail/pinDetailSlice"
+import { useActions } from '../hooks/useActions'
 
 type PropsType = {
   user: User
 }
 
 const PinDetail: React.FC<PropsType> = ({ user }) => {
-
-  // const [pinDetail, setPinDetail] = useState<PinType | null>(null)
-  const [comment, setComment] = useState<Comment["comment"]>('')
-  const [addingComment, setAddingComment] = useState(false)
-
   const { pins } = useTypedSelector(state => state.pins)
-  const { pinDetail } = useTypedSelector(state => state.pins)
+  const { pinDetail, loading, comment } = useTypedSelector(state => state.pinDetail)
   const dispatch = useTypedDispatch()
+  const { setComment } = useActions()
   const { pinId } = useParams()
 
   if (!pinId) {
     throw new Error('Unexpected undefined pin id')
   }
 
-  const fetchPinDetail = () => {
+  const fetchPinDetail = useCallback(() => {
     let query = pinDetailQuery(pinId)
     if (query) {
       dispatch(getPinDetail(query))
@@ -41,39 +37,25 @@ const PinDetail: React.FC<PropsType> = ({ user }) => {
         dispatch(reGetPins(query))
       }
     }
-  }
+  }, [pinId, dispatch, pinDetail])
 
-  const addComment = () => {
+  const addComment = useCallback(() => {
     if (comment) {
-      setAddingComment(true)
-
-      patchAPI(pinId, { comments: [] }, {
-        at: 'after', selector: 'comments[-1]', items: [{
-          comment,
-          _key: uuidv4(),
-          postedBy: {
-            _type: 'postedBy',
-            _ref: user._id
-          }
-        }]
-      }).then(() => {
+      dispatch(addNewComment({ pinId, user })).then(() => {
         fetchPinDetail()
-        setComment('')
-        setAddingComment(false)
       })
     }
-  }
+  }, [comment, pinId, user, dispatch, fetchPinDetail])
 
   useEffect(() => {
     fetchPinDetail()
-    // eslint-disable-next-line
-  }, [pinId])
+  }, [pinId, fetchPinDetail, loading])
 
   if (!pinDetail) return <Spinner message='Loading pin ...' />
 
   return (
     <>
-      <div className='flex xl: flex-row flex-col m-auto bg-white ' style={{ maxWidth: '1500px', borderRadius: '32px' }}>
+      <div className='flex xl:flex-row flex-col m-auto bg-white ' style={{ maxWidth: '1500px', borderRadius: '32px' }}>
         <div className='flex justify-center items-center md:items-start flex-initial'>
           <img
             src={pinDetail?.image && urlFor(pinDetail?.image).url()}
@@ -146,7 +128,7 @@ const PinDetail: React.FC<PropsType> = ({ user }) => {
               className="bg-red-500 text-white rounded-full px-6 py-2 font-semibold text-base outline-none"
               onClick={addComment}
             >
-              {addingComment ? 'Doing...' : 'Done'}
+              {loading ? 'Doing...' : 'Done'}
             </button>
           </div>
         </div>
