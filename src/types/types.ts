@@ -1,6 +1,6 @@
 export type User = {
   _createdAt: string
-  _id: number | string
+  _id?: string
   _rev: string
   _type: string
   _updatedAt: string
@@ -36,6 +36,7 @@ export type Save = {
   userId: string
 }
 export type Comment = {
+  _key: string
   postedBy: PostedBy,
   comment: string
 }

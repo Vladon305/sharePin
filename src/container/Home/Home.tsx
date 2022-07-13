@@ -3,18 +3,22 @@ import { HiMenu } from 'react-icons/hi'
 import { AiFillCloseCircle } from 'react-icons/ai'
 import { Link, Routes, Route } from 'react-router-dom'
 
-import { Sidebar, UserProfile } from '../components'
-import Pins from './Pins'
-import logo from '../assets/logo.png'
-import { fetchUser } from '../utils/fetchUser'
-import { getUser } from '../store/user/userSlice'
-import { useTypedDispatch } from '../hooks/useTypedDispatch'
-import { useTypedSelector } from '../hooks/useTypedSelector'
+import { Sidebar } from '../../components'
+import Pins from '../Pins'
+import logo from '../../assets/logo.png'
+import { fetchUser } from '../../utils/fetchUser'
+import { getUser } from '../../store/user/userSlice'
+import { useTypedDispatch } from '../../hooks/useTypedDispatch'
+import { User } from '../../types/types'
+import UserProfileContainer from '../../components/UserProfile/UserProfileContainer'
 
-const Home: React.FC = () => {
+type PropsType = {
+  user: User
+}
+
+const Home: React.FC<PropsType> = ({ user }) => {
 
   const [toggleSidebar, setToggleSidebar] = useState(false)
-  const { user } = useTypedSelector(state => state.user)
   const dispatch = useTypedDispatch()
 
   const userInfo = fetchUser()
@@ -49,7 +53,7 @@ const Home: React.FC = () => {
       </div>
       <div className='pb-2 flex-1 h-screen'>
         <Routes>
-          <Route path='/user-profile/:userId' element={<UserProfile />} />
+          <Route path='/user-profile/:userId' element={<UserProfileContainer />} />
           <Route path='/*' element={<Pins user={user && user} />} />
         </Routes>
       </div>

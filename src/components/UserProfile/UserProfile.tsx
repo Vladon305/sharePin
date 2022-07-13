@@ -1,29 +1,34 @@
-import React, { useEffect, useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 // import { AiOutlineLogout } from 'react-icons/ai'
 import { useParams } from 'react-router-dom'
 // import { googleLogout } from '@react-oauth/google'
 
-import MasonryLayout from './MasonryLayout'
-import Spinner from './Spinner'
-import { useTypedSelector } from '../hooks/useTypedSelector'
-import { useTypedDispatch } from '../hooks/useTypedDispatch'
-import { getUserProfile } from '../store/user/userSlice'
-import { getCreatedPins, getSavedPins } from '../store/pins/reducers'
+import MasonryLayout from '../MasonryLayout'
+import Spinner from '../Spinner'
+import { useTypedSelector } from '../../hooks/useTypedSelector'
+import { useTypedDispatch } from '../../hooks/useTypedDispatch'
+import { getUserProfile } from '../../store/user/userSlice'
+import { getCreatedPins, getSavedPins } from '../../store/pins/reducers'
+import { PinType } from '../../types/types'
 
 const activeBtnStyles = 'bg-red-500 text-white font-bold p-2 rounded-full w-20 outline-none'
 const notActiveBtnStyles = 'bg-primary mr-4 text-black font-bold p-2 rounded-full w-20 outline-none'
 
 const randomImage = "https://source.unsplash.com/1600x900/?nature,photography,technology"
 
-const UserProfile: React.FC = () => {
-  const [text, setText] = useState<string | null>('Created')
-  const [activeBtn, setActiveBtn] = useState('created')
+type PropsType = {
+  createdPins: PinType[]
+  savedPins: PinType[]
+  pins: PinType[]
+  setPins: Dispatch<SetStateAction<PinType[]>>
+}
 
-  const { createdPins } = useTypedSelector(state => state.pins)
-  const { savedPins } = useTypedSelector(state => state.pins)
+const UserProfile: React.FC<PropsType> = ({ createdPins, savedPins, pins, setPins }) => {
+  const [text, setText] = useState<string | null>('Created')
+  const [activeBtn, setActiveBtn] = useState('Created')
+
   const { userProfile } = useTypedSelector(state => state.user)
 
-  const [pins, setPins] = useState(createdPins)
   const dispatch = useTypedDispatch()
 
   const { userId } = useParams()
@@ -33,18 +38,25 @@ const UserProfile: React.FC = () => {
   }
 
   useEffect(() => {
-    dispatch(getUserProfile(userId))
-  }, [userId, dispatch])
+    dispatch(getUserProfile(userId)).then(() => {
+      setActiveBtn('Created')
+      setText('Created')
+    })
+    // eslint-disable-next-line
+  }, [userId])
 
   useEffect(() => {
     if (text === 'Created') {
-      dispatch(getCreatedPins(userId))
-      setPins(createdPins)
+      dispatch(getCreatedPins(userId)).then(() => {
+        setPins(createdPins)
+      })
     } else {
-      dispatch(getSavedPins(userId))
-      setPins(savedPins)
+      dispatch(getSavedPins(userId)).then(() => {
+        setPins(savedPins)
+      })
     }
-  }, [text, createdPins, savedPins, userId, dispatch])
+    // eslint-disable-next-line
+  }, [text, userId])
 
   if (!userProfile) return <Spinner message="Loading profile" />
 
@@ -92,9 +104,9 @@ const UserProfile: React.FC = () => {
             type="button"
             onClick={(e) => {
               setText(e.currentTarget.textContent)
-              setActiveBtn('created')
+              setActiveBtn('Created')
             }}
-            className={`${activeBtn === 'created' ? activeBtnStyles : notActiveBtnStyles}`}
+            className={`${activeBtn === 'Created' ? activeBtnStyles : notActiveBtnStyles}`}
           >
             Created
           </button>
@@ -102,16 +114,16 @@ const UserProfile: React.FC = () => {
             type="button"
             onClick={(e) => {
               setText(e.currentTarget.textContent)
-              setActiveBtn('saved')
+              setActiveBtn('Saved')
             }}
-            className={`${activeBtn === 'saved' ? activeBtnStyles : notActiveBtnStyles}`}
+            className={`${activeBtn === 'Saved' ? activeBtnStyles : notActiveBtnStyles}`}
           >
             Saved
           </button>
         </div>
         {pins?.length ? (
           <div className="px-2">
-            <MasonryLayout pins={pins} />
+            <MasonryLayout pins={text === 'Created' ? createdPins : savedPins} />
           </div>
         ) : (
           <div className="flex justify-center font-bold items-center w-full text-1xl mt-2">

@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 
-import { Navbar, Feed, PinDetail, CreatePin, Search } from '../components'
+import { Navbar, CreatePin, Search } from '../components'
+import FeedContainer from '../components/Feed/FeedContainer'
+import PinDetailContainer from '../components/PinDetail/PinDetailContainer'
 import { User } from '../types/types'
 
 type PropsType = {
@@ -18,9 +20,9 @@ const Pins: React.FC<PropsType> = ({ user }) => {
       </div>
       <div className='h-full'>
         <Routes>
-          <Route path='/' element={<Feed />} />
-          <Route path='/category/:categoryId' element={<Feed />} />
-          <Route path='/pin-detail/:pinId' element={<PinDetail user={user} />} />
+          <Route path='/' element={<FeedContainer />} />
+          <Route path='/category/:categoryId' element={<FeedContainer />} />
+          <Route path='/pin-detail/:pinId' element={<PinDetailContainer user={user} />} />
           <Route path='/create-pin' element={<CreatePin user={user} />} />
           <Route path='/search' element={<Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />} />
         </Routes>

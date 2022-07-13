@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 
 import { Login } from './components'
-import Home from './container/Home'
+import HomeContainer from './container/Home/HomeContainer'
 import { fetchUser } from './utils/fetchUser'
 
 const App: React.FC = () => {
@@ -18,7 +18,7 @@ const App: React.FC = () => {
   return (
     <Routes>
       <Route path='login' element={<Login />} />
-      <Route path='/*' element={<Home />} />
+      <Route path='/*' element={<HomeContainer />} />
     </Routes>
   )
 }

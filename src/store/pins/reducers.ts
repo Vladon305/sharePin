@@ -1,6 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { fetchingAPI } from '../../API/API'
+import { fetchingAPI, patchAPI } from '../../API/API'
 import { feedQuery, searchQuery, userCreatedPinsQuery, userSavedPinsQuery } from '../../utils/data'
+import { v4 as uuidv4 } from 'uuid';
+import { User } from '../../types/types';
+import { client } from '../../client';
 
 
 export const getPins = createAsyncThunk(
@@ -16,15 +19,6 @@ export const getPins = createAsyncThunk(
         return data
       })
     }
-  }
-)
-
-export const reGetPins = createAsyncThunk(
-  'pins/reGetPins',
-  async (query: string) => {
-    return await fetchingAPI(query).then((data) => {
-      return data
-    })
   }
 )
 
@@ -55,5 +49,30 @@ export const getSavedPins = createAsyncThunk(
     return await fetchingAPI(query).then((data) => {
       return data
     })
+  }
+)
+
+export const savePin = createAsyncThunk<any, { pinId: string, userId: User['_id'] }>(
+  'pins/savePin',
+  async ({ pinId, userId }) => {
+    const item = {
+      _key: uuidv4(),
+      userId: userId,
+      postedBy: {
+        _type: 'postedBy',
+        _ref: userId
+      }
+    }
+    return await patchAPI(pinId, { save: [] }, {
+      at: 'after', selector: 'save[-1]',
+      items: [item]
+    })
+  }
+)
+
+export const unSavePin = createAsyncThunk(
+  'pins/unSavePin',
+  async (id: string) => {
+    return await client.patch(id).unset(['save[0]']).commit()
   }
 )

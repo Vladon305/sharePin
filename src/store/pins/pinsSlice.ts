@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { PinType } from '../../types/types'
-import { getPins, getSearchPins, getCreatedPins, getSavedPins, reGetPins } from './reducers'
+import { getPins, getSearchPins, getCreatedPins, getSavedPins, savePin, unSavePin } from './reducers'
 
 const initialState = {
   pins: [] as PinType[],
@@ -22,13 +22,6 @@ export const pinsSlice = createSlice({
       state.pins = action.payload
       state.loading = false
     },
-    [reGetPins.pending.type]: (state) => {
-      state.loading = true
-    },
-    [reGetPins.fulfilled.type]: (state, action: PayloadAction<PinType[]>) => {
-      state.pins = action.payload
-      state.loading = false
-    },
     [getSearchPins.pending.type]: (state) => {
       state.loading = true
     },
@@ -47,6 +40,20 @@ export const pinsSlice = createSlice({
     },
     [getSavedPins.fulfilled.type]: (state, action: PayloadAction<PinType[]>) => {
       state.savedPins = action.payload
+    },
+    [savePin.fulfilled.type]: (state, action: PayloadAction<PinType>) => {
+      let pin = state.pins.find(item => item._id === action.payload._id)
+      let pinIndex = state.pins.findIndex(item => item._id === action.payload._id)
+      if (pin) {
+        state.pins[pinIndex].save = action.payload.save
+      }
+    },
+    [unSavePin.fulfilled.type]: (state, action: PayloadAction<PinType>) => {
+      let pin = state.pins.find(item => item._id === action.payload._id)
+      let pinIndex = state.pins.findIndex(item => item._id === action.payload._id)
+      if (pin) {
+        state.pins[pinIndex].save = action.payload.save
+      }
     }
   }
 })

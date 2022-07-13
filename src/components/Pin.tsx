@@ -1,14 +1,15 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { PinType } from '../types/types'
 import { Link, useNavigate } from 'react-router-dom'
-import { v4 as uuidv4 } from 'uuid'
 import { MdDownloadForOffline } from 'react-icons/md'
 import { AiTwotoneDelete } from 'react-icons/ai'
 import { BsFillArrowUpRightCircleFill } from 'react-icons/bs'
 
-import { client, urlFor } from '../client'
+import { urlFor } from '../client'
 import { fetchUser } from '../utils/fetchUser'
-import { deleteAPI, patchAPI } from '../API/API'
+import { deleteAPI } from '../API/API'
+import { savePin, unSavePin } from '../store/pins/reducers';
+import { useTypedDispatch } from '../hooks/useTypedDispatch'
 
 type PropsType = {
   pin: PinType
@@ -17,41 +18,32 @@ type PropsType = {
 const Pin: React.FC<PropsType> = ({ pin: { postedBy, image, _id, destination, save } }) => {
   const [postHovered, setPostHovered] = useState(false)
   const [savingPost, setSavingPost] = useState(false)
+  const [alreadySaved, setAlreadySaved] = useState(false)
 
   const navigate = useNavigate()
   const user = fetchUser()
+  const dispatch = useTypedDispatch()
 
-  const alreadySaved = !!(save?.filter((item) => item?.postedBy?._id === user?.sub))?.length
+  const data = {
+    pinId: _id,
+    userId: user?.sub
 
-  const savePin = (id: string) => {
+  }
+  const onSavePin = () => {
     if (!alreadySaved) {
+      setAlreadySaved(true)
       setSavingPost(true)
-
-      patchAPI(id, { save: [] }, {
-        at: 'after', selector: 'save[-1]',
-        items: [{
-          _key: uuidv4(),
-          userId: user?.sub,
-          postedBy: {
-            _type: 'postedBy',
-            _ref: user?.sub
-          }
-        }]
-      }).then(() => {
-        window.location.reload()
-        setSavingPost(false)
-      })
+      dispatch(savePin(data))
+      setSavingPost(false)
     }
   }
 
-  const unSavePin = (id: string) => {
+  const onUnSavePin = () => {
     if (alreadySaved) {
+      setAlreadySaved(false)
       setSavingPost(true)
-
-      client.patch(id).unset(['save[0]']).commit().then(() => {
-        window.location.reload()
-        setSavingPost(false)
-      })
+      dispatch(unSavePin(_id))
+      setSavingPost(false)
     }
   }
 
@@ -61,6 +53,12 @@ const Pin: React.FC<PropsType> = ({ pin: { postedBy, image, _id, destination, sa
         window.location.reload()
       })
   }
+
+  useEffect(() => {
+    setAlreadySaved(!!(save?.filter((item) => item?.postedBy?._id === user?.sub))?.length)
+    // eslint-disable-next-line
+  }, [])
+
 
   return (
     <div className='m-2'>
@@ -91,7 +89,7 @@ const Pin: React.FC<PropsType> = ({ pin: { postedBy, image, _id, destination, sa
                   type='button'
                   onClick={(e) => {
                     e.stopPropagation()
-                    unSavePin(_id)
+                    onUnSavePin()
                   }}
                   className='bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none'>
                   {save?.length}  Saved
@@ -100,7 +98,7 @@ const Pin: React.FC<PropsType> = ({ pin: { postedBy, image, _id, destination, sa
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    savePin(_id)
+                    onSavePin()
                   }}
                   type='button'
                   className='bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none'
@@ -137,7 +135,7 @@ const Pin: React.FC<PropsType> = ({ pin: { postedBy, image, _id, destination, sa
           </div>
         )}
       </div>
-      <Link to={`user-profile/${postedBy?._id}`} className='flex items-center gap-2 mt-2'>
+      <Link to={`/user-profile/${postedBy?._id}`} className='flex items-center gap-2 mt-2'>
         <img
           src={postedBy?.image}
           alt="user-profile"

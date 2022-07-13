@@ -1,5 +1,6 @@
 import { IdentifiedSanityDocumentStub, SanityDocumentStub, UploadOptions } from "@sanity/client"
 import { client } from "../client"
+import { pinDetailQuery } from "../utils/data"
 
 type AttributeSet = { [key: string]: any }
 
@@ -31,3 +32,4 @@ export const assetAPI = async (assetType: "image", body: File | Blob | Buffer | 
 export const deleteAPI = async (id: string) => {
   return await client.delete(id)
 }
+

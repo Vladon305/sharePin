@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import MasonryLayout from './MasonryLayout'
-import Spinner from './Spinner'
-import { useTypedSelector } from '../hooks/useTypedSelector'
-import { useTypedDispatch } from '../hooks/useTypedDispatch'
-import { getPins } from "../store/pins/reducers"
+import MasonryLayout from '../MasonryLayout'
+import Spinner from '../Spinner'
+import { useTypedDispatch } from '../../hooks/useTypedDispatch'
+import { getPins } from "../../store/pins/reducers"
+import { PinType } from '../../types/types'
 
-const Feed: React.FC = () => {
-  const { pins } = useTypedSelector(state => state.pins)
-  const { loading } = useTypedSelector(state => state.pins)
+type PropsType = {
+  pins: PinType[]
+  loading: boolean
+}
+
+const Feed: React.FC<PropsType> = ({pins, loading}) => {
   const { categoryId } = useParams()
 
   const dispatch = useTypedDispatch()
